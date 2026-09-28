@@ -1,8 +1,8 @@
-# Doenjang shotgun metagenome: regional and fermentation-stage dynamics
+# Doenjang shotgun metagenome: a case study of six traditional producers
 
 Data and code accompanying the manuscript
-**"국내 6개 지역 재래식 된장의 발효 기간별 세균·진균 군집 천이와 대사체 상관관계: 샷건 메타지놈 분석"**
-(*Shotgun Metagenomic Analysis of Regional and Fermentation-Stage Dynamics of Bacterial and Fungal Communities in Korean Traditional Doenjang, and Their Association with Metabolite Profiles*).
+**"전통 된장 제조업체 6곳의 숙성 중 세균·진균 군집 천이와 대사체 연관성: 샷건 메타지놈 사례 연구"**
+(*Bacterial and Fungal Succession and Metabolite Associations during Ripening of Traditional Doenjang from Six Producers: A Shotgun Metagenomic Case Study*).
 
 Region names and manufacturers are anonymized as Region 1–6.
 
