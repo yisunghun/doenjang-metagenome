@@ -1,0 +1,6 @@
+*.fastq.gz
+*.bam
+*.bai
+__pycache__/
+fig/
+.DS_Store
