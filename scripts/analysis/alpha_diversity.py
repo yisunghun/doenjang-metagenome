@@ -32,3 +32,9 @@ for c in ['shannon_whole','richness_whole']:
 D=squareform(pdist(t.T.values,'braycurtis')); iu=np.triu_indices(n,1); same=reg[iu[0]]==reg[iu[1]]
 print('Bray-Curtis within region median %.2f (IQR %.2f-%.2f); between regions %.2f (%.2f-%.2f)'%(np.median(D[iu][same]),*np.percentile(D[iu][same],[25,75]),np.median(D[iu][~same]),*np.percentile(D[iu][~same],[25,75])))
 out.to_csv('alpha_whole.tsv',sep='\t')
+# Dominance vs diversity: share of the most abundant taxon and of Enterococcus (GTDB MAGs) vs Shannon
+from scipy.stats import spearmanr
+g=pd.read_csv('reps_gtdb.tsv',sep='\t',index_col=0).iloc[:,0]
+pp=p*100; top=pp.max(); ent=pp.loc[[i for i in pp.index if i in g.index and 'Enterococcus' in g[i]]].sum()
+print('Shannon vs share of most abundant taxon: rho=%.2f p=%.1e'%spearmanr(top[S],out.loc[S,'shannon_whole']))
+print('Shannon vs share of Enterococcus: rho=%.2f p=%.2f'%spearmanr(ent[S],out.loc[S,'shannon_whole']))
