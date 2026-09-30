@@ -32,20 +32,29 @@ S=sorted(m.index,key=lambda s:(m.region[s],so[m.stage[s]])); m=m.loc[S]
 MK=['o','s','^','D','v','P']
 RN={1:'Gangwon',2:'Gyeonggi',3:'Gyeongsang',4:'Jeolla',5:'Chungcheong',6:'Jeju'}
 # ---- Fig1 PCoA
-rel=pd.read_csv('bracken_species_relab.tsv',sep='\t',index_col=0)[S]
-D=squareform(pdist(rel.T.values,'braycurtis')); n=len(D); J=np.eye(n)-1/n; B=-0.5*J@(D**2)@J
+import matplotlib.gridspec as gs
+
+t=pd.read_csv('combined_bacteriaMAG_fungiGenus_relab.tsv',sep='\t',index_col=0)[S]
+D=squareform(pdist(t.T.values,'braycurtis')); n=len(D); J=np.eye(n)-1/n; B=-0.5*J@(D**2)@J
 w,v=np.linalg.eigh(B); i=np.argsort(w)[::-1]; w,v=w[i],v[:,i]; X=v[:,:2]*np.sqrt(w[:2]); ev=w[:2]/w[w>0].sum()*100
-fig,ax=plt.subplots(figsize=(4.6,3.8))
+fig=plt.figure(figsize=(6.8,3.3))
+g=gs.GridSpec(1,2,width_ratios=[2.3,1],wspace=0.32,left=.085,right=.985,top=.91,bottom=.27)
+ax=fig.add_subplot(g[0]); a3=fig.add_subplot(g[1]); H=[]
 for k,r in enumerate(range(1,7)):
     idx=[j for j,s in enumerate(S) if m.region[s]==r]
     ax.plot(X[idx,0],X[idx,1],'-',color=C[k],lw=1,alpha=.6,zorder=1)
-    ax.scatter(X[idx,0],X[idx,1],s=34,marker=MK[k],color=C[k],edgecolor='white',linewidth=.8,zorder=2,label=f'Region {r} ({RN[int(r)]})')
-    j0=idx[0]; ax.annotate('Meju',(X[j0,0],X[j0,1]),xytext=(4,4),textcoords='offset points',fontsize=6,color=INK2)
+    h=ax.scatter(X[idx,0],X[idx,1],s=32,marker=MK[k],color=C[k],edgecolor='white',linewidth=.8,zorder=2,label=f'Region {r} ({RN[r]})'); H.append(h)
+    j0=idx[0]; ax.annotate('Meju',(X[j0,0],X[j0,1]),xytext=(3,3),textcoords='offset points',fontsize=6,color=INK2)
 ax.set_xlabel(f'PCoA1 ({ev[0]:.1f}%)'); ax.set_ylabel(f'PCoA2 ({ev[1]:.1f}%)')
 ax.axhline(0,color=LG,lw=.6,zorder=0); ax.axvline(0,color=LG,lw=.6,zorder=0)
-ax.legend(loc='center left',bbox_to_anchor=(1,.5),fontsize=7,handletextpad=.3)
-ax.set_title('Bacterial community (species, Bray–Curtis)',fontsize=8.5,loc='left')
-fig.tight_layout(); fig.savefig('fig/Fig1_PCoA.png'); plt.close()
+ax.set_title('A',fontsize=9,loc='left',fontweight='bold')
+r=m.region.values; iu=np.triu_indices(n,1); same=r[iu[0]]==r[iu[1]]
+bp=a3.boxplot([D[iu][same],D[iu][~same]],widths=.55,patch_artist=True,showfliers=False,medianprops=dict(color='#0b0b0b',lw=1.4),whiskerprops=dict(color=INK2,lw=.7),capprops=dict(color=INK2,lw=.7))
+for p_,c_ in zip(bp['boxes'],['#c9c8c3','#8a8985']): p_.set_facecolor(c_); p_.set_edgecolor(INK2); p_.set_linewidth(.7)
+a3.set_xticks([1,2]); a3.set_xticklabels(['Within\nregion','Between\nregions'],fontsize=7); a3.set_ylabel('Bray–Curtis dissimilarity'); a3.set_ylim(0,1.02)
+a3.set_title('B',fontsize=9,loc='left',fontweight='bold'); a3.grid(axis='y',color=LG,lw=.5); a3.set_axisbelow(True)
+fig.legend(H,[h.get_label() for h in H],loc='lower center',ncol=3,fontsize=6.5,handletextpad=.2,columnspacing=1.6,bbox_to_anchor=(.5,-.01))
+fig.savefig('fig/Fig1_beta_diversity.png'); plt.close()
 print('PCoA ev',ev.round(1))
 # ---- Fig2 stacked composition (% of total reads)
 tot=pd.read_csv('composition_pct_total_reads.tsv',sep='\t',index_col=0)[S]
@@ -72,21 +81,35 @@ ax.legend(ncol=8,loc='upper center',bbox_to_anchor=(.5,-.22),fontsize=6.5,handle
 fig.tight_layout(); fig.savefig('fig/Fig2_composition.png'); plt.close()
 comp.to_csv('fig2_data.tsv',sep='\t',float_format='%.2f')
 # ---- Fig3 succession
+al=pd.read_csv('alpha_whole.tsv',sep='\t',index_col=0).loc[S]
 kk=['Bacillus','Enterococcus','Tetragenococcus','Pediococcus','Kroppenstedtia (MAG)','Aspergillus (F)']
 cc=[C[0],C[1],C[3],C[2],C[6],C[4]]
-fig,ax=plt.subplots(figsize=(4.8,3.1))
+fig=plt.figure(figsize=(6.8,3.35))
+g=gs.GridSpec(1,2,width_ratios=[1.45,1],wspace=0.28,left=.075,right=.985,top=.87,bottom=.22)
+ax=fig.add_subplot(g[0]); a2=fig.add_subplot(g[1])
 for k,col in zip(kk,cc):
-    g=tot.loc[k].groupby(m.stage); mu=g.mean().reindex(O); se=(g.std()/np.sqrt(g.count())).reindex(O)
+    gg=tot.loc[k].groupby(m.stage); mu=gg.mean().reindex(O); se=(gg.std()/np.sqrt(gg.count())).reindex(O)
     ax.plot(range(6),mu.values,'-o',color=col,lw=2,ms=4,mec='white',mew=.8)
     ax.fill_between(range(6),(mu-se).values,(mu+se).values,color=col,alpha=.12,lw=0)
     ax.text(5.15,mu.values[-1],k.replace(' (MAG)','*').replace(' (F)',' (fungi)'),color='#0b0b0b',fontsize=6.5,va='center')
-ax.set_xticks(range(6)); ax.set_xticklabels(OL); ax.set_xlim(-.2,6.6); ax.set_ylabel('% of total reads (mean ± SE)')
+ax.set_xticks(range(6)); ax.set_xticklabels(OL); ax.set_xlim(-.2,7.0); ax.set_ylabel('% of total reads (mean ± SE)')
 ax.grid(axis='y',color=LG,lw=.5); ax.set_axisbelow(True)
-ax.axvline(2.5,color=INK2,lw=.8,ls='--',zorder=1)
-ax.text(2.5,1.01,'Soy sauce separation (day 60)',transform=ax.get_xaxis_transform(),ha='center',va='bottom',fontsize=6.5,color=INK2)
-ax.text(1.0,.97,'Meju / tojang',transform=ax.get_xaxis_transform(),ha='center',va='top',fontsize=6.5,color=INK2)
-ax.text(4.0,.97,'Doenjang',transform=ax.get_xaxis_transform(),ha='center',va='top',fontsize=6.5,color=INK2)
-fig.tight_layout(); fig.savefig('fig/Fig4_succession.png'); plt.close()
+for a_ in (ax,a2):
+    a_.axvline(2.5,color=INK2,lw=.8,ls='--',zorder=1)
+    a_.text(2.5,1.01,'Soy sauce separation (day 60)',transform=a_.get_xaxis_transform(),ha='center',va='bottom',fontsize=6,color=INK2)
+    a_.text(1.0,.97,'Meju / tojang',transform=a_.get_xaxis_transform(),ha='center',va='top',fontsize=6,color=INK2)
+    a_.text(4.0,.97,'Doenjang',transform=a_.get_xaxis_transform(),ha='center',va='top',fontsize=6,color=INK2)
+ax.set_title('A',fontsize=9,loc='left',fontweight='bold',pad=12)
+for k,r in enumerate(range(1,7)):
+    ss=[s for s in S if m.region[s]==r]; xs=np.array([so[m.stage[s]] for s in ss])+(k-2.5)*.06; ys=al.loc[ss,'shannon_whole'].values
+    a2.plot(xs,ys,'-',color=C[k],lw=.8,alpha=.5,zorder=1)
+    a2.scatter(xs,ys,s=16,marker=MK[k],color=C[k],edgecolor='white',linewidth=.6,zorder=2,label=f'Region {r} ({RN[r]})')
+med=al.groupby('stage').shannon_whole.median().reindex(O)
+a2.plot(range(6),med.values,'_',color='#0b0b0b',ms=14,mew=1.6,zorder=3)
+a2.set_xticks(range(6)); a2.set_xticklabels(OL); a2.set_ylabel('Shannon index'); a2.set_ylim(.6,3.0)
+a2.grid(axis='y',color=LG,lw=.5); a2.set_axisbelow(True); a2.set_title('B',fontsize=9,loc='left',fontweight='bold',pad=12)
+h_,l_=a2.get_legend_handles_labels(); fig.legend(h_,l_,loc='lower center',ncol=6,fontsize=6,handletextpad=.1,columnspacing=.9,bbox_to_anchor=(.5,-.005))
+fig.savefig('fig/Fig4_succession_alpha.png'); plt.close()
 # ---- Fig4 fungi
 fp=pd.read_csv('fungi_2step_summary_parsed.tsv',sep='\t',index_col=0).loc[S]
 fr=pd.read_csv('fungi_bracken_G_relab_within_fungi.tsv',sep='\t',index_col=0)[S]

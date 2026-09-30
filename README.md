@@ -38,7 +38,7 @@ figures/                                 manuscript Figs. 1–5 and Supplementar
 `05_…sh --build-db` rebuilds the fungal database from NCBI RefSeq (list in `data/reference_db`). Paths at the top of each script (`RESULTS_DIR`, `DB_ROOT`, `CONDA_ENV`) must be adapted.
 
 ## Analysis (reproducing tables and figures)
-Run from `data/processed/` in this order (Python ≥3.10 with pandas, numpy, scipy, matplotlib, openpyxl):
+Run from `data/processed/` in this order. Results in the manuscript were produced with Python 3.11, NumPy 2.4, pandas 3.0, SciPy 1.17 and matplotlib 3.10 (openpyxl for `HMT.xlsx`):
 ```bash
 cd data/processed
 python ../../scripts/analysis/stats_v3.py      # QC/classification summaries, stage & region tables
@@ -50,6 +50,7 @@ python ../../scripts/analysis/partial_corr.py  # partial rank correlation (regio
 python ../../scripts/analysis/review2b.py      # within-region block-permutation p-values
 python ../../scripts/analysis/mag_summary.py   # representative MAG summary
 python ../../scripts/analysis/series_perm.py   # series (cyclic-shift) permutation sensitivity analysis
+python ../../scripts/analysis/alpha_diversity.py  # Shannon diversity of the combined community; within/between-region Bray-Curtis → alpha_whole.tsv
 python ../../scripts/analysis/figs.py          # Figs. 1–5 and Fig. S1 → ./fig
 python ../../scripts/analysis/figs_metabolites.py  # Fig. S2 → ./fig
 ```
@@ -59,10 +60,10 @@ Permutation-based results use fixed random seeds; exact p-values may differ slig
 ### Figures
 | File | Manuscript |
 |---|---|
-| `Fig1_PCoA.png` | Fig. 1 PCoA of bacterial communities |
+| `Fig1_beta_diversity.png` | Fig. 1 Beta diversity of the combined bacterial and fungal community: (A) Bray–Curtis PCoA, (B) within- vs between-region dissimilarity |
 | `Fig2_composition.png` | Fig. 2 Microbial composition of each sample |
 | `Fig3_fungi.png` | Fig. 3 Fungal reads by stage and fungal genus composition |
-| `Fig4_succession.png` | Fig. 4 Changes in major taxa (dashed line, soy sauce separation on day 60) |
+| `Fig4_succession_alpha.png` | Fig. 4 (A) Changes in major taxa and (B) Shannon diversity of the combined community (dashed lines, soy sauce separation on day 60) |
 | `Fig5_correlation.png` | Fig. 5 Taxon–metabolite correlations |
 | `FigS1_pathways.png` | Supplementary Fig. S1 MetaCyc pathways by region |
 | `FigS2_metabolites.png` | Supplementary Fig. S2 Free amino acids and biogenic amines |
@@ -76,6 +77,7 @@ Permutation-based results use fixed random seeds; exact p-values may differ slig
 | `mag_relative_abundance.tsv`, `mag_reps_summary.tsv`, `reps_gtdb.tsv`, `clusters.tsv` | CoverM abundance of 63 representative MAGs; quality and GTDB-Tk; galah clusters |
 | `humann_pathabundance_cpm_unstratified.tsv` | HUMAnN MetaCyc pathways (CPM, UNMAPPED/UNINTEGRATED removed) |
 | `sample_summary.tsv` | Per-sample classification rates, diversity, HUMAnN UNMAPPED fraction |
+| `alpha_whole.tsv` | Shannon index and richness of the combined community (bacterial MAGs + fungal genera) |
 | `review_permanova.tsv`, `stage_trend_perm.tsv`, `series_perm_permanova.tsv`, `series_perm_trend.tsv`, `taxa_metabolite_correlation.tsv`, `tableS1.tsv` | Statistical results reported in the manuscript |
 
 ## Raw sequence data
