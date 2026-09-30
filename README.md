@@ -84,7 +84,7 @@ Raw FASTQ files are available from the corresponding author (Sang-Pil Hong, spho
 ## Citation
 Yi SH, Lee JE, Chin YW, Lee SJ, Hong SP. Microbial community dynamics and their associations with metabolite changes from meju through tojang to doenjang: a shotgun metagenomic case study of six traditional producers. Submitted to Food Science and Biotechnology.
 
-Data and code archive: Zenodo, https://doi.org/10.5281/zenodo.23010291
+Data and code archive: Zenodo, https://doi.org/10.5281/zenodo.23010290 (all versions; version 1.1: https://doi.org/10.5281/zenodo.23049995)
 
 ## License
 Code in `scripts/` is released under the MIT License (see `LICENSE`). Data in `data/`, `mags/` and `figures/` are released under the Creative Commons Attribution 4.0 International License (CC BY 4.0; https://creativecommons.org/licenses/by/4.0/). Please cite the associated manuscript when using these data.
